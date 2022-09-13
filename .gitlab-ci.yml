@@ -6,5 +6,5 @@ stages:
 test:
   stage: test 
   script:
-    - ./test.py
+    - /builds/dmitrimeowsalot/assignment-1-io-library/test.py
 
