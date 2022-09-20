@@ -3,12 +3,12 @@ section .text
 ; Принимает код возврата и завершает текущий процесс
 exit: 
     mov rax, 60
-    syscall
-    ret 
+    syscall 
 
 ; Принимает указатель на нуль-терминированную строку, возвращает её длину
 string_length:
     xor rax, rax
+    push rbx            ; Callee-saved
 .lp:
     mov bl, [rdi+rax]
     test bl, bl
@@ -16,11 +16,14 @@ string_length:
     inc rax
     jmp .lp
 .return:
+    pop rbx             ; Callee-saved
     ret
 
 ; Принимает указатель на нуль-терминированную строку, выводит её в stdout
 print_string:
+    push rdi            ; Caller-saved
     call string_length
+    pop rdi
     mov rdx, rax
     mov rax, 1
     mov rsi, rdi
@@ -43,13 +46,13 @@ print_char:
 ; Переводит строку (выводит символ с кодом 0xA)
 print_newline:
     mov rdi, 10
-    call print_char
-    ret
+    jmp print_char
 
 ; Выводит беззнаковое 8-байтовое число в десятичном формате 
 ; Совет: выделите место в стеке и храните там результаты деления
 ; Не забудьте перевести цифры в их ASCII коды.
 print_uint:
+    push rbx          ; Callee-saved
     dec rsp
     mov byte [rsp], 0 ; Null terminator
     mov rsi, 1
@@ -69,6 +72,7 @@ print_uint:
     call print_string
     pop rsi
     add rsp, rsi
+    pop rbx         ; Callee-saved
     ret
 
 ; Выводит знаковое 8-байтовое число в десятичном формате 
